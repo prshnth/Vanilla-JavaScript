@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      @import url('https://fonts.googleapis.com/css?family=Open+Sans&display=swap');
+      :root {
+        --error-color: #e74c3c;
+        --success-color: #2ecc71;
+      }
+      body {
+        display: flex;
+        background-color: #f9fafb;
+        height: 100vh;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Open Sans', sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      form {
+        width: 400px;
+        border-radius: 5px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        padding: 20px 30px;
+      }
+      form .header {
+        text-align: center;
+        font-size: 20px;
+        margin-bottom: 10px;
+      }
+      .form-control {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 10px;
+      }
+      .form-control small {
+        visibility: hidden;
+      }
+      .form-control.invalid input {
+        border-color: var(--error-color);
+      }
+      .form-control.valid input {
+        border-color: var(--success-color);
+      }
+      .form-control.invalid small {
+        visibility: visible;
+        color: var(--error-color);
+      }
+      input {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 4px;
+        border: 2px solid #f0f0f0;
+        font-size: 14px;
+      }
+      input:focus {
+        outline: 0;
+      }
+      form .button {
+        cursor: pointer;
+        background-color: #3498db;
+        border: 2px solid #3498db;
+        border-radius: 4px;
+        width: 100%;
+        border-radius: 4px;
+        color: #fff;
+        display: block;
+        font-size: 16px;
+        padding: 10px;
+      }
+    </style>
+    <title>Form Validations</title>
+  </head>
+  <body>
+    <form id="form" class="form">
+      <div class="header">Please enter details</div>
+      <div class="form-control">
+        <label>User Name</label>
+        <input name="username" id="username" />
+        <small></small>
+      </div>
+      <div class="form-control">
+        <label>Email Address</label>
+        <input type="email" name="email" id="email" />
+        <small>Invalid Email Address</small>
+      </div>
+      <div class="form-control">
+        <label>Password</label>
+        <input type="password" name="password" id="password" />
+        <small>Please enter Password</small>
+      </div>
+      <div class="form-control">
+        <label>Re-enter Password</label>
+        <input type="password" name="password2" id="password2" />
+        <small>Passowrds did not match</small>
+      </div>
+      <button class="button">Submit</button>
+      <script>
+        const button = document.querySelector('.button');
+        const username = document.querySelector('#username');
+        const email = document.querySelector('#email');
+        const password = document.querySelector('#password');
+        const password2 = document.querySelector('#password2');
+
+        function startCase(text) {
+          return text.charAt(0).toUpperCase() + text.slice(1);
+        }
+        function showSuccess(input) {
+          input.parentElement.className = 'form-control valid';
+        }
+
+        function showError(input, errorText) {
+          input.parentElement.className = 'form-control invalid';
+          input.parentElement.querySelector('small').innerText = errorText;
+        }
+
+        function checkEmpty(inputs) {
+          inputs.forEach((input) => {
+            if (input.value === '') {
+              showError(input, `Please enter ${startCase(input.id)}`);
+            } else {
+              showSuccess(input);
+            }
+          });
+        }
+
+        function checkEmail(input) {
+          if (isEmailValid(input.value)) {
+            return showSuccess(input);
+          } else {
+            showError(input, `Please enter a valid ${startCase(input.id)}`);
+          }
+        }
+
+        function checkPassword(input) {
+          if (input.value.length < 6) {
+            return showError(
+              input,
+              `${startCase(input.id)} must be at least 6 characters`
+            );
+          } else {
+            showSuccess(input);
+          }
+        }
+
+        function checkPasswordsMatch(input1, input2) {
+          if (input2.value !== '' && input1.value === input2.value) {
+            showSuccess(input2);
+          } else {
+            showError(input2, `${startCase(input1.id)}s must match`);
+          }
+        }
+
+        function isEmailValid(emailValue) {
+          const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+          return re.test(emailValue.trim());
+        }
+        button.addEventListener('click', (e) => {
+          e.preventDefault();
+          checkEmpty([username, email, password, password2]);
+          checkEmail(email);
+          checkPassword(password);
+          checkPasswordsMatch(password, password2);
+        });
+      </script>
+    </form>
+  </body>
+</html>

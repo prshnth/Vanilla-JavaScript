@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      :root {
+        --selected-color: #6feaf6;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        background-color: #242333;
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
+      #movie-select {
+        appearance: none;
+        -moz-appearance: none;
+        -webkit-appearance: none;
+        padding: 5px 10px;
+        background-color: #fff;
+        border: 0;
+        border-radius: 5px;
+        font-size: 14px;
+        margin-left: 10px;
+      }
+      .screen {
+        width: 150px;
+        height: 70px;
+        background-color: white;
+        margin: 10px 0;
+        box-shadow: 0 3px 10px rgba(255, 255, 255, 0.7);
+      }
+      .seat-status-indicator {
+        display: flex;
+      }
+      .seat-status-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 15px 0;
+      }
+      .seat-status-container:not(last-child) {
+        margin-right: 10px;
+      }
+      .seat {
+        width: 15px;
+        height: 15px;
+        background-color: #444451;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        margin: 5px;
+      }
+      .seats .seat {
+        cursor: pointer;
+      }
+      .seat.selected {
+        background-color: var(--selected-color);
+      }
+      .seat.available:hover {
+        transform: scale(1.5);
+      }
+      .seat.unavailable {
+        background-color: #fff;
+        cursor: initial;
+      }
+      .seat-status {
+        margin-top: 5px;
+      }
+      .seats {
+        display: flex;
+        flex-wrap: wrap;
+        width: 200px;
+      }
+      .price-text span {
+        color: var(--selected-color);
+      }
+    </style>
+    <title>Movie Ticket Booking</title>
+  </head>
+  <body>
+    <div class="movie-selector">
+      <label>Select a Movie: </label>
+      <select id="movie-select">
+        <option value="10">Avengers: Endgame ($10)</option>
+        <option value="12">Joker ($12)</option>
+        <option value="8">Toy Story 4 ($8)</option>
+        <option value="9">The Lion King ($9)</option>
+      </select>
+    </div>
+    <div class="seat-status-indicator">
+      <div class="seat-status-container">
+        <div class="seat"></div>
+        <span class="seat-status">Available</span>
+      </div>
+      <div class="seat-status-container">
+        <div class="seat selected"></div>
+        <span class="seat-status">Selected</span>
+      </div>
+      <div class="seat-status-container">
+        <div class="seat unavailable"></div>
+        <span class="seat-status">Unavailable</span>
+      </div>
+    </div>
+    <div class="screen"></div>
+    <div class="seats"></div>
+    <p class="price-text">
+      You have selected <span id="count">0</span> seats for a price of $<span
+        id="total"
+        >0</span
+      >
+    </p>
+    <script>
+      const seatsContainer = document.querySelector('.seats');
+      const movieSelector = document.querySelector('#movie-select');
+      const count = document.querySelector('#count');
+      const price = document.querySelector('#total');
+      let ticketPrice;
+      function setSeatStatusInitially() {
+        for (let i = 0; i < 48; i++) {
+          let seatNode = document.createElement('div');
+          if (i % 5 === 0) {
+            seatNode.className = 'seat unavailable';
+          } else {
+            seatNode.className = 'seat available';
+          }
+          seatNode.id = i;
+          seatsContainer.appendChild(seatNode);
+        }
+
+        const selectedSeats = JSON.parse(localStorage.getItem('selectedSeats'));
+        if (selectedSeats) {
+          selectedSeats.forEach((seat) => {
+            const storedSeat = document.getElementById(`${seat}`);
+            storedSeat.classList.add('selected');
+          });
+        }
+        movieSelector.selectedIndex =
+          localStorage.getItem('selectedMovieIndex') || 0;
+        ticketPrice = document.querySelector('#movie-select').value;
+        updateCount();
+      }
+      function updateCount() {
+        const selectedSeats = seatsContainer.querySelectorAll('.seat.selected');
+        count.innerText = selectedSeats.length;
+        price.innerText = selectedSeats.length * ticketPrice;
+        localStorage.setItem(
+          'selectedSeats',
+          JSON.stringify([...selectedSeats].map((seat) => seat.id))
+        );
+      }
+      movieSelector.addEventListener('change', (e) => {
+        ticketPrice = e.target.value;
+        localStorage.setItem('selectedMovieIndex', e.target.selectedIndex);
+        updateCount();
+      });
+      seatsContainer.addEventListener('click', (e) => {
+        if (
+          e.target.classList.contains('seat') &&
+          !e.target.classList.contains('unavailable')
+        ) {
+          e.target.classList.toggle('selected');
+          updateCount();
+        }
+      });
+      setSeatStatusInitially();
+    </script>
+  </body>
+</html>

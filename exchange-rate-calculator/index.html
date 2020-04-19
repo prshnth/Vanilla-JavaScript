@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Exchange Rate Calculator</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background-color: #f4f4f4;
+        padding: 20px;
+      }
+      .currency-container {
+        margin: 10px 0;
+        display: flex;
+        flex-direction: column;
+      }
+      .currency-input-container {
+        align-items: center;
+        display: flex;
+      }
+      .currency-container select {
+        margin-right: 10px;
+        font-size: 16px;
+        width: 60px;
+        border: 1px solid gray;
+      }
+      button {
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 14px;
+        margin: 10px auto 10px 0;
+        background: #5fbaa7;
+        cursor: pointer;
+      }
+      .currency-text-container {
+        color: #5fbaa7;
+      }
+      .currency-container input {
+        border-radius: 5px;
+        border: 1px solid gray;
+        font-size: 16px;
+        width: 70px;
+      }
+      select:focus,
+      button:focus,
+      input:focus {
+        outline: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 class="heading">Exchange Rate Calculator</h1>
+    <span class="sub-title"
+      >Choose the currency and the amounts to get the exchange rate.</span
+    >
+    <div class="currency-container">
+      <div class="currency-input-container">
+        <select id="from-currency"></select>
+        <input type="number" id="from-currency-input" />
+      </div>
+      <div class="currency-text-container">
+        <button>Swap</button>
+        <span id="currency-text"></span>
+      </div>
+
+      <div class="currency-input-container">
+        <select id="to-currency"></select>
+        <input type="number" id="to-currency-input" />
+      </div>
+    </div>
+    <script>
+      const ratesSelect = document.querySelectorAll('select');
+      const fromSelect = document.querySelector('#from-currency');
+      const toSelect = document.querySelector('#to-currency');
+      const fromInput = document.querySelector('#from-currency-input');
+      const toInput = document.querySelector('#to-currency-input');
+      const button = document.querySelector('button');
+      let rates;
+      function makeDOM(rates) {
+        for (const rate in rates) {
+          ratesSelect.forEach((select) => {
+            const inputNode = document.createElement('option');
+            inputNode.value = rate;
+            inputNode.innerText = rate;
+            select.appendChild(inputNode);
+            if (select.id === 'to-currency' && rate === 'INR') {
+              select.value = rate;
+            } else if (select.id === 'from-currency' && rate === 'USD') {
+              select.value = rate;
+              fromInput.value = rates[rate];
+            }
+          });
+        }
+      }
+      function updateText() {
+        const currencyText = document.getElementById('currency-text');
+        currencyText.innerText = `1 ${fromSelect.value} = ${toInput.value} ${toSelect.value}`;
+      }
+      function updateInput() {
+        toInput.value = (fromInput.value * rates[toSelect.value]).toFixed(2);
+        updateText();
+      }
+      function loadData(input) {
+        const currency = typeof input === 'string' ? input : 'USD';
+        fetch(`https://api.exchangerate-api.com/v4/latest/${currency}`)
+          .then((response) => response.json())
+          .then((data) => {
+            rates = data.rates;
+            if (typeof input !== 'string') {
+              makeDOM(rates);
+            }
+            updateInput();
+          });
+      }
+      function onRateChange() {
+        loadData(fromSelect.value);
+      }
+      function swapValues() {
+        const fromSelectValue = fromSelect.value;
+        const toSelectValue = toSelect.value;
+        const fromInputValue = fromInput.value;
+        const toInputValue = toInput.value;
+        fromSelect.value = toSelectValue;
+        toSelect.value = fromSelectValue;
+        fromInput.value = toInputValue;
+        toInput.value = fromInputValue;
+      }
+      button.addEventListener('click', swapValues);
+      ratesSelect.forEach((select) =>
+        select.addEventListener('change', onRateChange)
+      );
+      fromInput.addEventListener('input', updateInput);
+      toInput.addEventListener('input', updateInput);
+      document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+  </body>
+</html>

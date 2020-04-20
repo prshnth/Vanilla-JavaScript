@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Star Rating Component</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        display: flex;
+        height: 100vh;
+        align-items: center;
+        justify-content: center;
+      }
+      .rating-container {
+        display: flex;
+        justify-content: space-between;
+      }
+      h2 {
+        margin-right: 10px;
+      }
+      i:hover {
+        cursor: pointer;
+      }
+      .rating-container .selected {
+        color: gold;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Rate me:</h1>
+    <div class="rating-container">
+      <span id="1">
+        <i class="fas fa-star fa-2x"></i>
+      </span>
+      <span id="2">
+        <i class="fas fa-star fa-2x"></i>
+      </span>
+      <span id="3">
+        <i class="fas fa-star fa-2x"></i>
+      </span>
+      <span id="4">
+        <i class="fas fa-star fa-2x"></i>
+      </span>
+      <span id="5">
+        <i class="fas fa-star fa-2x"></i>
+      </span>
+    </div>
+    <script
+      src="https://use.fontawesome.com/releases/v5.13.0/js/all.js"
+      data-auto-replace-svg="nest"
+    ></script>
+    <script>
+      let selectedRating;
+      const stars = document.querySelectorAll('.rating-container span');
+      const starsContainer = document.querySelector('.rating-container');
+      function setInitialRating(e) {
+        selectedRating = parseInt(localStorage.getItem('starRating'));
+        setRating();
+      }
+      function setRating(rating) {
+        const ratingIndex = rating || selectedRating;
+        stars.forEach((star) => {
+          if (parseInt(star.id) <= ratingIndex) {
+            star.classList.add('selected');
+          } else {
+            star.classList.remove('selected');
+          }
+        });
+      }
+      function onClick(e) {
+        selectedRating = parseInt(e.currentTarget.id);
+        localStorage.setItem('starRating', e.currentTarget.id);
+        setRating();
+      }
+      function onHover(e) {
+        setRating(parseInt(e.currentTarget.id));
+      }
+      function onMouseOut() {
+        setRating();
+      }
+      stars.forEach((star) => star.addEventListener('click', onClick));
+      stars.forEach((star) => star.addEventListener('mouseover', onHover));
+      starsContainer.addEventListener('mouseout', onMouseOut);
+      document.addEventListener('DOMContentLoaded', setInitialRating);
+    </script>
+  </body>
+</html>

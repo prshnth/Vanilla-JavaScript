@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background-color: #34495e;
+        color: #fff;
+      }
+      .hangman-container {
+        display: flex;
+        align-items: center;
+      }
+      .hangman-container .hangman-icon {
+        margin-right: 20px;
+      }
+      .figure-container {
+        fill: transparent;
+        stroke: #fff;
+        stroke-width: 4px;
+        stroke-linecap: round;
+      }
+
+      .figure-part {
+        display: none;
+      }
+      .wrong-letters {
+        width: 100px;
+        height: 100px;
+      }
+      .wrong-letters .text {
+        word-break: break-word;
+      }
+      .wrong-entry-popup {
+        position: absolute;
+        bottom: -40px;
+        background-color: rgba(0, 0, 0, 0.3);
+        border-radius: 10px 10px 0 0;
+        padding: 10px;
+        transition: bottom 0.3s ease-in-out;
+      }
+      .wrong-entry-popup.show {
+        bottom: 0;
+      }
+      .end-dialog-modal {
+        position: absolute;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: rgba(0, 0, 0, 0.3);
+      }
+      .end-dialog-modal .end-dialog-container {
+        display: flex;
+        flex-direction: column;
+        background: #2980b9;
+        border-radius: 5px;
+        box-shadow: 0 15px 10px 3px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        font-size: 20px;
+        text-align: center;
+      }
+      .end-dialog-modal .end-dialog-container button {
+        cursor: pointer;
+        background-color: #fff;
+        color: #2980b9;
+        border: 0;
+        margin-top: 20px;
+        padding: 12px 20px;
+        font-size: 16px;
+        border-radius: 4px;
+      }
+      .end-dialog-container .win {
+        display: none;
+      }
+      .end-dialog-container .lost {
+        display: none;
+      }
+      .end-dialog-container .win.show {
+        display: block;
+      }
+      .end-dialog-container .lost.show {
+        display: block;
+      }
+      button:active {
+        transform: scale(0.9);
+      }
+      button:focus {
+        outline: 0;
+      }
+      .entered-letters {
+        display: flex;
+        justify-content: space-between;
+      }
+      .entered-letters .input-letter {
+        margin: 0 5px;
+        border-bottom: 3px solid #2980b9;
+        font-size: 30px;
+        width: 20px;
+        height: 50px;
+      }
+    </style>
+    <title>Hangman game</title>
+  </head>
+  <body>
+    <h1>Hangman</h1>
+    <span>Guess the hidden word by entering letters</span>
+    <div class="hangman-container" id="hangman-container">
+      <div class="hangman-icon" id="hangman-icon">
+        <svg height="250" width="200" class="figure-container">
+          <!-- Rod -->
+          <line x1="60" y1="20" x2="140" y2="20" />
+          <line x1="140" y1="20" x2="140" y2="50" />
+          <line x1="60" y1="20" x2="60" y2="230" />
+          <line x1="20" y1="230" x2="100" y2="230" />
+
+          <!-- Head -->
+          <circle cx="140" cy="70" r="20" class="figure-part" />
+          <!-- Body -->
+          <line x1="140" y1="90" x2="140" y2="150" class="figure-part" />
+          <!-- Arms -->
+          <line x1="140" y1="120" x2="120" y2="100" class="figure-part" />
+          <line x1="140" y1="120" x2="160" y2="100" class="figure-part" />
+          <!-- Legs -->
+          <line x1="140" y1="150" x2="120" y2="180" class="figure-part" />
+          <line x1="140" y1="150" x2="160" y2="180" class="figure-part" />
+        </svg>
+      </div>
+      <div class="wrong-letters"></div>
+    </div>
+    <div class="entered-letters"></div>
+    <div class="wrong-entry-popup">
+      <span
+        >You have already entered letter: <span class="wrong-again"></span
+      ></span>
+    </div>
+    <div class="end-dialog-modal">
+      <div class="end-dialog-container">
+        <span class="win">Congratulations! You Won!</span>
+        <span class="lost">Unfortualtely You Lost.</span>
+        <button id="play-again">Play Again</button>
+      </div>
+    </div>
+    <script>
+      const words = ['America', 'Atlantic', 'World War', 'Galaxy', 'Netflix'],
+        inputs = [],
+        wrongInputs = [],
+        playAgain = document.getElementById('play-again'),
+        lettersEle = document.querySelector('.entered-letters'),
+        wrongLettersEle = document.querySelector('.wrong-letters'),
+        wrongPopUp = document.querySelector('.wrong-entry-popup'),
+        wrongLetter = document.querySelector('.wrong-again'),
+        hangman = document.querySelectorAll('.figure-part');
+      dialog = document.querySelector('.end-dialog-modal');
+      let selectedWord = words[
+        Math.floor(Math.random() * words.length)
+      ].toLowerCase();
+      function loadContent() {
+        lettersEle.innerHTML = `${selectedWord
+          .split('')
+          .map(
+            (letter) =>
+              `<span class="input-letter">${
+                inputs.includes(letter) ? letter : ''
+              }</span>`
+          )
+          .join('')}`;
+        const innerWord = lettersEle.innerText.replace(/[ \n]/g, '');
+        if (selectedWord === innerWord) {
+          showDialog();
+        }
+      }
+      function updateWrongEle() {
+        wrongLettersEle.innerHTML = `${
+          wrongInputs.length > 0 ? '<span>Wrong Letters: </span>' : ''
+        }
+        ${wrongInputs.map(
+          (wrongInput) => `<span class="text"> ${wrongInput}</span>`
+        )}`;
+        if (wrongInputs.length === hangman.length) {
+          showDialog('fail');
+          return;
+        }
+        hangman.forEach((part, index) => {
+          if (index < wrongInputs.length) {
+            part.style.display = 'inline-block';
+          } else {
+            part.style.display = 'none';
+          }
+        });
+      }
+      function showDialog(status) {
+        const failEle = document.querySelector('.lost'),
+          successEle = document.querySelector('.win');
+        if (status === 'fail') {
+          failEle.classList.add('show');
+          successEle.classList.remove('show');
+        } else {
+          failEle.classList.remove('show');
+          successEle.classList.add('show');
+        }
+        dialog.style.display = 'flex';
+      }
+      function showPopUp(letter) {
+        wrongLetter.innerText = letter;
+        wrongPopUp.classList.toggle('show');
+        setTimeout(function () {
+          wrongPopUp.classList.toggle('show');
+        }, 1500);
+      }
+      window.addEventListener('keydown', (e) => {
+        if (e.keyCode >= 65 && e.keyCode <= 90) {
+          if (selectedWord.includes(e.key)) {
+            if (inputs.includes(e.key)) {
+              showPopUp(e.key);
+            } else {
+              inputs.push(e.key);
+            }
+          } else if (wrongInputs.includes(e.key)) {
+            showPopUp(e.key);
+          } else {
+            wrongInputs.push(e.key);
+            updateWrongEle();
+          }
+          loadContent();
+        }
+      });
+      playAgain.addEventListener('click', () => {
+        dialog.style.display = 'none';
+        selectedWord = words[
+          Math.floor(Math.random() * words.length)
+        ].toLowerCase();
+        inputs.splice(0);
+        wrongInputs.splice(0);
+        updateWrongEle();
+        loadContent();
+      });
+      document.addEventListener('DOMContentLoaded', loadContent);
+    </script>
+  </body>
+</html>

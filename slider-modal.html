@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        transition: transform 0.5s ease;
+      }
+      body.open {
+        transform: translateX(300px);
+      }
+      .left-nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        transform: translateX(-100%);
+        width: 300px;
+        height: 100vh;
+        z-index: 100;
+        display: flex;
+        padding: 20px;
+        background-color: #30336b;
+        border-right: 2px solid rgba(200, 200, 200, 0.1);
+        color: #fff;
+      }
+
+      .left-nav img {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        margin: 0 auto;
+      }
+      .container {
+        padding: 40px;
+        width: 800px;
+        display: flex;
+        flex-direction: column;
+        margin: 0 auto;
+      }
+      .modal {
+        position: absolute;
+        display: none;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(0, 0, 0, 0.6);
+      }
+      .modal.show-modal {
+        display: flex;
+      }
+      .modal .dialog {
+        background-color: #fff;
+        display: flex;
+        flex-direction: column;
+        border-radius: 4px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        width: 400px;
+      }
+      .dialog .dialog-header {
+        background: #30336b;
+        display: flex;
+        justify-content: space-between;
+        padding: 15px;
+        border-radius: 4px 4px 0 0;
+        color: #fff;
+        font-size: 20px;
+      }
+      .dialog-header .close-button {
+        cursor: pointer;
+        width: 30px;
+        height: 30px;
+      }
+      .signup-form {
+        padding: 15px;
+      }
+      .signup-form .input-container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        margin-bottom: 10px;
+      }
+      .input-container input {
+        border-radius: 4px;
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+      }
+      button,
+      input[type='submit'] {
+        background-color: #be2edd;
+        border: 0;
+        border-radius: 5px;
+        color: #fff;
+        cursor: pointer;
+        padding: 10px 12px;
+        font-size: 14px;
+      }
+      input[type='submit']:focus {
+        outline: 0;
+      }
+      .header {
+        background-color: #30336b;
+        color: #fff;
+        font-size: 130%;
+        position: relative;
+        padding: 40px 15px;
+        text-align: center;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .header h1 {
+        margin: 0;
+      }
+      .header .toggle {
+        background-color: rgba(0, 0, 0, 0.3);
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        border: 0;
+      }
+    </style>
+    <title>Menu Slider & Modal</title>
+  </head>
+  <body>
+    <nav class="left-nav" id="left-nav">
+      <img src="https://randomuser.me/api/portraits/men/88.jpg" alt="user" />
+    </nav>
+    <header class="header" id="header">
+      <button id="toggle" class="toggle">
+        <i class="fa fa-bars fa-2x"></i>
+      </button>
+      <div>
+        <h1>Landing Page</h1>
+        <p>
+          Lorem, ipsum dolor sit amet consectetur adipisicing elit. Animi,
+          commodi?
+        </p>
+        <button id="sign-up" class="sign-up">Sign Up</button>
+      </div>
+    </header>
+    <div class="container" id="container">
+      <h2>What is this page about?</h2>
+      <p>
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Obcaecati
+        officiis pariatur at. Obcaecati quos facilis nisi optio ut nam nihil eum
+        perferendis, exercitationem nobis est blanditiis quo adipisci aperiam
+        ad.
+      </p>
+      <h2>More</h2>
+      <p>
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt odit
+        blanditiis officiis odio eaque libero et consequuntur tempora rem error.
+      </p>
+    </div>
+    <div class="modal" id="modal">
+      <div class="dialog" id="dialog">
+        <div class="dialog-header" id="dialog-header">
+          <span>Sign Up</span>
+          <i class="fas fa-times" id="close-button" class="close-button"></i>
+        </div>
+        <form id="signup-form" class="signup-form">
+          <div class="input-container">
+            <label id="name" class="name">Name</label>
+            <input type="text" placeholder="Enter Name" />
+          </div>
+          <div class="input-container">
+            <label id="email" class="email">Email</label>
+            <input type="text" placeholder="Enter Email" />
+          </div>
+          <div class="input-container">
+            <label id="password" class="password">Password</label>
+            <input type="password" placeholder="Enter Password" />
+          </div>
+          <div class="input-container">
+            <label id="password2" class="password2">Confirm Password</label>
+            <input type="password" placeholder="Confirm Password" />
+          </div>
+          <input type="submit" value="Submit" class="submit-button" />
+        </form>
+      </div>
+    </div>
+    <script
+      src="https://use.fontawesome.com/releases/v5.13.0/js/all.js"
+      data-auto-replace-svg="nest"
+    ></script>
+    <script>
+      const modal = document.getElementById('modal');
+      const dialog = document.getElementById('dialog');
+      const signUp = document.getElementById('sign-up');
+      const close = document.getElementById('close-button');
+      const toggle = document.getElementById('toggle');
+      const leftNav = document.getElementById('left-nav');
+
+      //Event Listeners
+
+      toggle.addEventListener('click', () =>
+        document.querySelector('body').classList.toggle('open')
+      );
+
+      signUp.addEventListener('click', () => modal.classList.add('show-modal'));
+      close.addEventListener('click', () =>
+        modal.classList.remove('show-modal')
+      );
+      modal.addEventListener('click', (e) =>
+        e.target === modal ? modal.classList.remove('show-modal') : false
+      );
+    </script>
+  </body>
+</html>

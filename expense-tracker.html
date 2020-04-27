@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12),
+          0 1px 2px rgba(0, 0, 0, 0.24);
+        --border-color: #dedede;
+        --white-color: #fff;
+        --red-color: #c0392b;
+        --green-color: #2ecc71;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: 'Merriweather', serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background-color: #f7f7f7;
+      }
+      .balance .balance-amount {
+        font-size: 24px;
+        line-height: 30px;
+      }
+      .expense-container {
+        display: flex;
+        flex-direction: column;
+        width: 300px;
+      }
+      .income-box {
+        display: flex;
+        justify-content: center;
+        text-align: center;
+        padding: 20px 0;
+        margin: 10px 0;
+        background-color: var(--white-color);
+        border-radius: 4px;
+        line-height: 25px;
+        box-shadow: var(--box-shadow);
+      }
+      .income-box .income {
+        border-right: 2px solid var(--border-color);
+        padding: 0 20px;
+      }
+      .income-box .expense {
+        padding: 0 20px;
+      }
+      .income .updated-income {
+        color: var(--green-color);
+      }
+      .expense .updated-expense {
+        color: var(--red-color);
+      }
+      .card {
+        display: flex;
+        flex-direction: column;
+      }
+      .card-header {
+        padding: 10px 0;
+        border-bottom: 2px solid var(--border-color);
+      }
+      .card .transactions {
+        margin: 10px 0;
+      }
+      .transactions .transaction {
+        background-color: var(--white-color);
+        margin: 10px 0;
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        position: relative;
+      }
+      .transaction i {
+        position: absolute;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+        background-color: var(--red-color);
+        left: -20px;
+      }
+      .transaction:hover i {
+        display: flex;
+        cursor: pointer;
+      }
+      .transaction.positive {
+        border-right: 4px solid var(--green-color);
+      }
+      .transaction.negative {
+        border-right: 4px solid var(--red-color);
+      }
+      .card .transaction-type {
+        display: flex;
+        flex-direction: column;
+        margin: 10px 0;
+        line-height: 24px;
+      }
+      .transaction-type input {
+        padding: 10px;
+        font-size: 16px;
+        margin-top: 5px;
+        border: 1px solid #dedede;
+        border-radius: 2px;
+      }
+      .card .add-transaction {
+        padding: 10px;
+        font-size: 16px;
+        margin-top: 5px;
+        border-radius: 4px;
+        cursor: pointer;
+        background-color: #9c88ff;
+      }
+    </style>
+    <title>Expense Tracker</title>
+  </head>
+  <body>
+    <div class="expense-container">
+      <h1>Expense Tracker</h1>
+      <div class="balance" id="balance">
+        <div>YOUR BALANCE</div>
+        <div id="balance-amount" class="balance-amount">$0.00</div>
+      </div>
+      <div class="income-box">
+        <div class="income">
+          <div>INCOME</div>
+          <div class="updated-income" id="updated-income">$0.00</div>
+        </div>
+        <div class="expense">
+          <div>EXPENSE</div>
+          <div class="updated-expense" id="updated-expense">$0.00</div>
+        </div>
+      </div>
+      <div class="card" id="history-card">
+        <span class="card-header">History</span>
+        <div class="transactions" id="transactions"></div>
+        <div class="card" id="new-transaction">
+          <span class="card-header">Add a New Transaction</span>
+          <div class="transaction-type">
+            <label class="text">Text</label>
+            <input
+              type="text"
+              id="transaction-name"
+              placeholder="Enter Transaction Name"
+            />
+          </div>
+          <div class="transaction-type">
+            <label class="amount" id="amount">Amount </label>
+            <small>(Negative - Expense, Positive - Income)</small>
+            <input
+              type="number"
+              id="transaction-amount"
+              placeholder="Enter Transaction Amount"
+            />
+          </div>
+          <button class="add-transaction" id="add-transaction">
+            Add Transaction
+          </button>
+        </div>
+      </div>
+    </div>
+    <script
+      src="https://use.fontawesome.com/releases/v5.13.0/js/all.js"
+      data-auto-replace-svg="nest"
+    ></script>
+    <script>
+      const transactionName = document.querySelector('#transaction-name');
+      const transactionAmount = document.querySelector('#transaction-amount');
+      const addTransaction = document.querySelector('.add-transaction');
+      const transactions = document.querySelector('#transactions');
+      const incomeEle = document.querySelector('#updated-income');
+      const expenseEle = document.querySelector('#updated-expense');
+      const balanceEle = document.querySelector('#balance-amount');
+      let income = 0,
+        expense = 0,
+        balance = 0;
+
+      function calculateAmount() {
+        const currentAmount = parseInt(transactionAmount.value);
+        if (currentAmount > 0) {
+          income += currentAmount;
+          incomeEle.innerText = '$' + income.toFixed(2);
+        } else {
+          expense += currentAmount;
+          expenseEle.innerText = '$' + expense.toFixed(2);
+        }
+        balance = income + expense;
+        balanceEle.innerText = '$' + balance.toFixed(2);
+      }
+
+      function removeAmount(amount) {
+        const currentAmount = parseInt(amount);
+        if (currentAmount > 0) {
+          income -= currentAmount;
+          incomeEle.innerText = '$' + income.toFixed(2);
+        } else {
+          expense -= currentAmount;
+          expenseEle.innerText = '$' + expense.toFixed(2);
+        }
+        balance = income + expense;
+        balanceEle.innerText = '$' + balance.toFixed(2);
+      }
+
+      // Event Listeners
+
+      addTransaction.addEventListener('click', () => {
+        const transactionEle = document.createElement('div'),
+          deleteIcon = document.createElement('i'),
+          amount = transactionAmount.value;
+        deleteIcon.className = 'fas fa-times';
+        const transactionchildren = `
+            <span>${transactionName.value}</span>
+            <span>${amount}</span>
+        `;
+        transactionEle.classList.add('transaction');
+        if (!!transactionName.value && !!transactionAmount.value) {
+          if (parseInt(amount) > 0) {
+            transactionEle.classList.add('positive');
+          } else {
+            transactionEle.classList.add('negative');
+          }
+          transactionEle.innerHTML = transactionchildren;
+          transactionEle.appendChild(deleteIcon);
+          transactions.appendChild(transactionEle);
+          calculateAmount();
+          transactionName.value = '';
+          transactionAmount.value = '';
+          deleteIcon.addEventListener('click', () => {
+            transactions.removeChild(transactionEle);
+            removeAmount(amount);
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
